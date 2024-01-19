@@ -77,6 +77,6 @@ Process finished with exit code 0
 </details>
 
 ----
-UPD: создана отдельная версия проекта в ветке [task](https://https://github.com/gryteck/process_controller/tree/tasks) из-за ошибки `NotImplementedError` из библиотеки multiprocessing.Queue поднимающаяся только на Mac Os. Метод `ProcessController.wait_count()` может работать некорректно
+UPD: создана отдельная версия проекта в ветке [task](https://github.com/gryteck/process_controller/tree/tasks) из-за ошибки `NotImplementedError` из библиотеки multiprocessing.Queue поднимающаяся только на Mac Os. Метод `ProcessController.wait_count()` может работать некорректно
 
 В этой версии добавлен класс `Tasks` для отслеживания очередности заданий. 
