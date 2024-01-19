@@ -13,7 +13,6 @@ def main():
     pc.wait()
 
     print("All tasks completed.")
-    print(f"- {pc.wait_count()} tasks left")
 
 
 if __name__ == "__main__":
