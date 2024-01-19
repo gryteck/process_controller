@@ -39,6 +39,7 @@ class ProcessController:
             process.join()
 
     def wait_count(self) -> int:
+        # Raises NotImplementedError on Mac OSX because of broken sem_getvalue()
         return self.queue.qsize()
 
     def alive_count(self) -> int:
