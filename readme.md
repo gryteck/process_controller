@@ -27,14 +27,14 @@
 В файле [process_controller.py](process_controller.py) представлен класс `ProcessController` организующий порядок выполнения параллельных процессов.
 
 Он включает аттрибуты:
-- `max_proc` - [int] максимальное число количества процессов, доступных к параллельной работе (по умолчанию равно 1)
-- `processes` - [multiprocessing.Process] список процессов <br>
+- `max_proc` - [int] максимальное число одновременно выполняемых заданий (по умолчанию = 1)
+- `threads` - [threading.Thread] список потоков <br>
 
 Методы:
 - `set_max_proc(n)` - устанавливает максимальное значение `max_proc`
 - `wait()` - ожидает завершения выполнения заданий
 - `wait_count()` - возвращает число заданий, которые осталось запустить
-- `alive_count()` - количество процессов выполняемых в данный момент
+- `alive_count()` - количество заданий выполняемых в данный момент
 
 В файле [task.py](task.py) представлена функция-пример `example_task(message, sleep_time)` выполняющая список заданий `tasks` из кортежей. Эта функция принимает в аргументах сообщение для трансляции и время задержки для дальнейшего отслеживания параллельных процессов.
 
@@ -42,41 +42,61 @@
 
 <details> <summary>Разбор примера:</summary>
 
+Функция `main()`
+
 ```
     # создаем экземпляр класса
     pc = ProcessController()
     
-    # задаем лимит количества одновременных процессов
+    # задаем лимит одновременно выполняяемых заданий
     pc.set_max_proc(2)
     
-    # передаем в аргументах список заданий и максимальное время выполнения любого задания
-    pc.start(tasks, 4)
-
-    print("Waiting for tasks to finish...")
+    # передаем в аргументах список заданий и лимит времени на выполнение задания
+    pc.start(tasks1, 3)
+    
+    # отслеживаем временные показатели
+    logging.debug(f" - Currently {pc.alive_count()} processes are alive")
+    logging.debug(" - Adding external tasks...")
+    logging.debug(f" - Currently {pc.wait_count()} tasks left")
+    
+    # добавляем новые задания
+    pc.start(tasks2, 3)
+    
+    # отслеживаем временные показатели
+    logging.debug(f" - Currently {pc.alive_count()} processes are alive")
+    logging.debug(f" - Currently {pc.wait_count()} tasks left")
+    
     # ожидаем завершения
     pc.wait()
+    logging.debug(" - All tasks completed.")
 
-    print("All tasks completed.")
 ```
 
 Вывод в логах:
 ```
-Task 1 started
-Task 2 started
-Task 2 finished
-Task 3 started
-Task 1 finished
-Waiting for tasks to finish...
-Task 3 finished
-Task 4 started
-Task 4 finished
-All tasks completed.
-
-Process finished with exit code 0
+    DEBUG:root: > Task 2 started
+    DEBUG:root: > Task 1 started
+    DEBUG:root: < Task 2 finished
+    DEBUG:root: < Task 1 terminated
+    DEBUG:root: - Currently 2 processes are alive
+    DEBUG:root: - Adding external tasks...
+    DEBUG:root: - Currently 2 tasks left
+    DEBUG:root: > Task 4 started
+    DEBUG:root: > Task 3 started
+    DEBUG:root: < Task 3 finished
+    DEBUG:root: > Task 5 started
+    DEBUG:root: < Task 4 terminated
+    DEBUG:root: > Task 6 started
+    DEBUG:root: < Task 5 terminated
+    DEBUG:root: > Task 7 started
+    DEBUG:root: < Task 6 finished
+    DEBUG:root: - Currently 2 processes are alive
+    DEBUG:root: - Currently 1 tasks left
+    DEBUG:root: > Task 8 started
+    DEBUG:root: < Task 7 finished
+    DEBUG:root: < Task 8 terminated
+    DEBUG:root: - All tasks completed.
+    
+    Process finished with exit code 0
 ```
 </details>
-
-----
-UPD: создана отдельная версия проекта в ветке [task](https://github.com/gryteck/process_controller/tree/tasks) из-за ошибки `NotImplementedError` из библиотеки multiprocessing.Queue поднимающаяся только на Mac Os. Метод `ProcessController.wait_count()` может работать некорректно
-
-В этой версии добавлен класс `Tasks` для отслеживания очередности заданий. 
